@@ -335,7 +335,18 @@ void* convertRGB2FB(int fh, unsigned char *rgbbuff, unsigned long count, int bpp
 		s_fbbuff[i] = make16color(rgbbuff[i*3], rgbbuff[i*3+1], rgbbuff[i*3+2]);
 		fbbuff = (void *) s_fbbuff;
 		break;
-	case 24:
+	case 24:  /* BGR666 */
+	    *cpp = 3;
+	    i_fbbuff = (unsigned int *) malloc(count * sizeof(unsigned int));
+	    for(i = 0; i < count * 3 ; i += 3)
+		{   // Skip 24 bit at a time
+			c_fbbuff = (u_int8_t  *)i_fbbuff ;
+		    c_fbbuff[i + 0] = (u_int8_t)( (rgbbuff[i+2] >> 2) | ((rgbbuff[i+1] & 0x0C) << 4) );
+		    c_fbbuff[i + 1] = (u_int8_t)( ((rgbbuff[i+1] & 0xF0) >> 4) | ((rgbbuff[i+0] & 0x3C) << 2) );
+		    c_fbbuff[i + 2] = (u_int8_t)( (rgbbuff[i+0] & 0xC0) >> 6 );
+		}
+	    fbbuff = (void *) i_fbbuff;
+	    break;
 	case 32:
 		*cpp = 4;
 		i_fbbuff = (unsigned int *) malloc(count * sizeof(unsigned int));
